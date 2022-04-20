@@ -34,7 +34,7 @@ from sklearn.utils import resample
 # Data
 
 data_path = "/Users/raphael.couronne/Programming/Perso/Data/ECG"
-data_path = "../Data"
+#data_path = "../Data"
 
 
 # dataset
@@ -74,6 +74,8 @@ NETWORK MODIFICATIONS ?
 
 """
 
+n_samples = 20
+
 
 # Set to 2000 per class, except class 3 where we upsample from 600 to 2000
 
@@ -82,11 +84,11 @@ df_1=df_train[df_train[187]==1]
 df_2=df_train[df_train[187]==2]
 df_3=df_train[df_train[187]==3]
 df_4=df_train[df_train[187]==4]
-df_0=(df_train[df_train[187]==0]).sample(n=20000,random_state=42)
-df_1_upsample=resample(df_1,replace=True,n_samples=20000,random_state=123)
-df_2_upsample=resample(df_2,replace=True,n_samples=20000,random_state=124)
-df_3_upsample=resample(df_3,replace=True,n_samples=20000,random_state=125)
-df_4_upsample=resample(df_4,replace=True,n_samples=20000,random_state=126)
+df_0=(df_train[df_train[187]==0]).sample(n=n_samples,random_state=42)
+df_1_upsample=resample(df_1,replace=True,n_samples=n_samples,random_state=123)
+df_2_upsample=resample(df_2,replace=True,n_samples=n_samples,random_state=124)
+df_3_upsample=resample(df_3,replace=True,n_samples=n_samples,random_state=125)
+df_4_upsample=resample(df_4,replace=True,n_samples=n_samples,random_state=126)
 
 df_train_resample=pd.concat([df_0,df_1_upsample,df_2_upsample,df_3_upsample,df_4_upsample])
 
@@ -109,12 +111,15 @@ X_train = X_train.reshape(len(X_train), X_train.shape[1],1)
 X_test = X_test.reshape(len(X_test), X_test.shape[1],1)
 
 
+X_test = X_test[:100,:]
+y_test = y_test[:100]
+
 #%% Train Network
 
 from networks import network, train_model, evaluate_model, plot_confusion_matrix
 
 model = network(X_train.shape[1])
-model,history = train_model(model, X_train, y_train, X_test, y_test, n_epochs=10)
+model, history = train_model(model, X_train, y_train, X_test, y_test, n_epochs=10)
 evaluate_model(history, X_test, y_test, model)
 y_pred=model.predict(X_test)
 
