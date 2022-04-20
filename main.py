@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 # Data
 data_path = "/Users/raphael.couronne/Programming/Perso/Data/ECG"
-data_path = "../ECG_Heartbeat"
+data_path = "../Data"
 
 # dataset
 
