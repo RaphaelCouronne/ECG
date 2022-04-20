@@ -33,8 +33,8 @@ from sklearn.utils import resample
 
 # Data
 
-data_path = "/Users/raphael.couronne/Programming/Perso/Data/ECG"
-#data_path = "../Data"
+#data_path = "/Users/raphael.couronne/Programming/Perso/Data/ECG"
+data_path = "../Data"
 
 
 # dataset
