@@ -74,8 +74,8 @@ NETWORK MODIFICATIONS ?
 
 """
 
-n_samples = 20
-
+n_samples_train = 20000
+n_samples_test = 3000
 
 # Set to 2000 per class, except class 3 where we upsample from 600 to 2000
 
@@ -84,11 +84,11 @@ df_1=df_train[df_train[187]==1]
 df_2=df_train[df_train[187]==2]
 df_3=df_train[df_train[187]==3]
 df_4=df_train[df_train[187]==4]
-df_0=(df_train[df_train[187]==0]).sample(n=n_samples,random_state=42)
-df_1_upsample=resample(df_1,replace=True,n_samples=n_samples,random_state=123)
-df_2_upsample=resample(df_2,replace=True,n_samples=n_samples,random_state=124)
-df_3_upsample=resample(df_3,replace=True,n_samples=n_samples,random_state=125)
-df_4_upsample=resample(df_4,replace=True,n_samples=n_samples,random_state=126)
+df_0=(df_train[df_train[187]==0]).sample(n=n_samples_train,random_state=42)
+df_1_upsample=resample(df_1,replace=True,n_samples=n_samples_train,random_state=123)
+df_2_upsample=resample(df_2,replace=True,n_samples=n_samples_train,random_state=124)
+df_3_upsample=resample(df_3,replace=True,n_samples=n_samples_train,random_state=125)
+df_4_upsample=resample(df_4,replace=True,n_samples=n_samples_train,random_state=126)
 
 df_train_resample=pd.concat([df_0,df_1_upsample,df_2_upsample,df_3_upsample,df_4_upsample])
 
@@ -111,8 +111,8 @@ X_train = X_train.reshape(len(X_train), X_train.shape[1],1)
 X_test = X_test.reshape(len(X_test), X_test.shape[1],1)
 
 
-X_test = X_test[:100,:]
-y_test = y_test[:100]
+X_test = X_test[:n_samples_test,:]
+y_test = y_test[:n_samples_test]
 
 #%% Train Network
 
