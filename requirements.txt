@@ -6,3 +6,5 @@ keras
 tensorflow
 seaborn
 kaggle
+numpy
+scipy

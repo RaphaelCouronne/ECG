@@ -31,8 +31,7 @@ warnings.filterwarnings('ignore')
 #%% Import data
 
 # Data
-data_path = "/Users/raphael.couronne/Programming/Perso/Data/ECG"
-data_path = "../Data"
+data_path = "../ECG_Data"
 
 # dataset
 
@@ -65,7 +64,7 @@ plt.show()
 #%% Input
 
 # Show examples
-num_plot = 10
+num_plot = 20
 num_hist = 500
 num_classes = 5
 classes_lim = {
@@ -78,6 +77,7 @@ classes_lim = {
 fig, axes = plt.subplots(num_classes, 3, figsize=(12,12))
 
 for i, lim in classes_lim.items():
+    axes[i,0].set_title(f"Class {i}")
     df_chosenclass = df_train.loc[df_train[187] == i]
     axes[i,0].plot(df_chosenclass.iloc[:num_plot,:].T)
     axes[i,1].hist2d(np.tile(np.arange(0,188), num_hist),

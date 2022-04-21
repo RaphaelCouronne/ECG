@@ -1,30 +1,16 @@
 import itertools
-from keras.layers import Dense, Convolution1D, MaxPool1D, Flatten, Dropout
+from keras.layers import Dense, Convolution1D, MaxPool1D, Flatten, Dropout, Convolution2D
 from keras.layers import Input
 from keras.models import Model
 from keras.layers.normalization import BatchNormalization
-import keras
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-import pandas as pd
 import numpy as np
-import os
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
-from keras.utils.np_utils import to_categorical
-from sklearn.utils import class_weight
-import warnings
-warnings.filterwarnings('ignore')
+import os
 
-
-def network(input_size):
-    im_shape = (input_size, 1)
+def network_classification(dim_1, dim_2, dim_out):
+    im_shape = (dim_1, dim_2)
     inputs_cnn = Input(shape=(im_shape), name='inputs_cnn')
     conv1_1 = Convolution1D(64, (6), activation='relu', input_shape=im_shape)(inputs_cnn)
     conv1_1 = BatchNormalization()(conv1_1)
@@ -38,21 +24,56 @@ def network(input_size):
     flatten = Flatten()(pool3)
     dense_end1 = Dense(64, activation='relu')(flatten)
     dense_end2 = Dense(32, activation='relu')(dense_end1)
-    main_output = Dense(5, activation='softmax', name='main_output')(dense_end2)
+    main_output = Dense(dim_out, activation='softmax', name='main_output')(dense_end2)
 
     model = Model(inputs=inputs_cnn, outputs=main_output)
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     return model
 
-def train_model(model,X_train, y_train, X_test, y_test, n_epochs=1):
-    callbacks = [EarlyStopping(monitor='val_loss', patience=8),
-                 ModelCheckpoint(filepath='best_model.h5', monitor='val_loss', save_best_only=True)]
 
-    history = model.fit(X_train, y_train, epochs=n_epochs, callbacks=callbacks, batch_size=32,
+def network_regression(dim_1, dim_2):
+    im_shape = (dim_1, dim_2)
+    inputs_cnn = Input(shape=(im_shape), name='inputs_cnn')
+    conv1_1 = Convolution1D(64, (6), activation='relu', input_shape=im_shape)(inputs_cnn)
+    conv1_1 = BatchNormalization()(conv1_1)
+    pool1 = MaxPool1D(pool_size=(3), strides=(2), padding="same")(conv1_1)
+    conv2_1 = Convolution1D(64, (3), activation='relu', input_shape=im_shape)(pool1)
+    conv2_1 = BatchNormalization()(conv2_1)
+    pool2 = MaxPool1D(pool_size=(2), strides=(2), padding="same")(conv2_1)
+    conv3_1 = Convolution1D(64, (3), activation='relu', input_shape=im_shape)(pool2)
+    conv3_1 = BatchNormalization()(conv3_1)
+    pool3 = MaxPool1D(pool_size=(2), strides=(2), padding="same")(conv3_1)
+    flatten = Flatten()(pool3)
+    dense_end1 = Dense(64, activation='relu')(flatten)
+    dense_end2 = Dense(32, activation='relu')(dense_end1)
+    main_output = Dense(1, activation='linear', name='main_output')(dense_end2)
+
+    model = Model(inputs=inputs_cnn, outputs=main_output)
+    model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mean_squared_error'])
+
+    return model
+
+
+
+def train_model(model, X_train, y_train, X_test, y_test, model_name, output_path, n_epochs=1):
+
+    batch_size = 8
+
+    filepath = os.path.join(output_path, 'best_model.{}.h5'.format(model_name))
+    print(f"Save filepath in {os.path.abspath(filepath)}")
+
+    #if not os.path.exists(output_path):
+    #    print("Warning folder does not exists")
+
+    callbacks = [EarlyStopping(monitor='val_loss', patience=8),
+                 ModelCheckpoint(filepath=filepath, monitor='val_loss', save_best_only=True)]
+
+    history = model.fit(X_train, y_train, epochs=n_epochs, callbacks=callbacks,
+                        batch_size=batch_size,
                         validation_data=(X_test, y_test))
 
-    model.load_weights('best_model.h5')
+    model.load_weights(filepath)
 
     return (model, history)
 
@@ -79,8 +100,10 @@ def evaluate_model(history, X_test, y_test, model):
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
     plt.show()
-    target_names = ['0', '1', '2', '3', '4']
 
+
+def evaluate_confusion_matrix(X_test, y_test, model):
+    target_names = ['0', '1', '2', '3', '4']
     y_true = []
     for element in y_test:
         y_true.append(np.argmax(element))
@@ -88,13 +111,11 @@ def evaluate_model(history, X_test, y_test, model):
     prediction = np.argmax(prediction_proba, axis=1)
     cnf_matrix = confusion_matrix(y_true, prediction)
 
-
-
-
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
                           title='Confusion matrix',
-                          cmap=plt.cm.Blues):
+                          cmap=plt.cm.Blues,
+                          output_path="../trained_models"):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
@@ -122,3 +143,4 @@ def plot_confusion_matrix(cm, classes,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    plt.savefig(os.path.join(output_path, "ecg-classif.jpg"))
