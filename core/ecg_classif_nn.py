@@ -3,21 +3,36 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
-from keras.utils.np_utils import to_categorical
-from core.networks import network_classification, train_model, evaluate_model, plot_confusion_matrix, evaluate_confusion_matrix
+from tensorflow.keras.utils import to_categorical
+from core.networks import network_classif, train_model, evaluate_model, plot_confusion_matrix, evaluate_confusion_matrix
 
-"""
-Q abut the data ?
--How many rows per patients ?
 
-INPUT DATA PROCESSING
--take subset | balance classes | weight classes
--data augmentation change ?
 
-NETWORK MODIFICATIONS ?
-"""
+def launch_ecg_classif(data_path = "../ECG_Data",  output_path="../trained_models", model_name= "ecg-classif",
+                       max_samples_train=1000, max_samples_test=200, n_epochs=1, batch_size=16,
+                       learning_rate=0.001):
+    """
+    Train a NN to predict ECG state from ECG window
 
-def launch_ecg_classif(data_path = "../ECG_Data",  output_path="../trained_models", model_name= "ecg-classif", max_samples_train=1000, max_samples_test=200, n_epochs=1):
+    task : ECG -> ECG State
+
+    Q about the data ?
+        -How many rows per patients ?
+
+    INPUT DATA PROCESSING
+        -take subset | balance classes | weight classes
+        -data augmentation change ?
+
+    :param data_path:
+    :param output_path:
+    :param model_name:
+    :param max_samples_train:
+    :param max_samples_test:
+    :param n_epochs:
+    :param batch_size:
+    :param learning_rate:
+    :return:
+    """
 
 
     #%% Import data
@@ -66,19 +81,19 @@ def launch_ecg_classif(data_path = "../ECG_Data",  output_path="../trained_model
     X_test = X_test.reshape(len(X_test), X_test.shape[1], 1)
     X_test = X_test[:max_samples_test, :]
     y_test = y_test[:max_samples_test]
-    
+
+    X_train = X_train.reshape(-1, X_train.shape[1])
+    X_test = X_test.reshape(-1, X_test.shape[1])
     
     #%% Train Network
-    model = network_classification(X_train.shape[1], 1, dim_out=5)
-    model, history = train_model(model, X_train, y_train, X_test, y_test, output_path=output_path, model_name=model_name, n_epochs=n_epochs)
+    model = network_classif(X_train.shape[1], 5, learning_rate=learning_rate)
+    model, history = train_model(model, X_train, y_train, X_test, y_test, output_path=output_path, model_name=model_name, n_epochs=n_epochs, batch_size=batch_size)
 
-    """
-    #evaluate_model(history, X_test, y_test, model)
-    #evaluate_confusion_matrix(X_test, y_test, model)
-    y_pred=model.predict(X_test)
-    
     #%% Check results
-    
+    evaluate_model(history, X_test, y_test, model, path_out=output_path)
+    #evaluate_confusion_matrix(X_test, y_test, model)
+    y_pred = model.predict(X_test)
+
     # Compute confusion matrix
     cnf_matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     np.set_printoptions(precision=2)
@@ -87,4 +102,3 @@ def launch_ecg_classif(data_path = "../ECG_Data",  output_path="../trained_model
     plt.figure(figsize=(10, 10))
     plot_confusion_matrix(cnf_matrix, classes=['N', 'S', 'V', 'F', 'Q'], normalize=True,
                           title='Confusion matrix, with normalization', output_path=output_path)
-    """

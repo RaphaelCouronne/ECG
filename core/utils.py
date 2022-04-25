@@ -34,8 +34,8 @@ def load_bp_data(bp_path, num_files_to_load=1):
 def assert_gpu():
     from tensorflow.python.client import device_lib
     print(device_lib.list_local_devices())
-    from keras import backend as K
-    K.tensorflow_backend._get_available_gpus()
+    #from keras import backend as K
+    #K.tensorflow_backend._get_available_gpus()
 
 
 def download_kaggle(dataset_name, path):

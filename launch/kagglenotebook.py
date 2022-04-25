@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 import os
-from core.networks import network_regression, train_model
+
 from core.utils import load_bp_data
 
 # Parameters

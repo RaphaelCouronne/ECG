@@ -10,7 +10,6 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
-from keras.utils.np_utils import to_categorical
 from sklearn.utils import class_weight
 import warnings
 warnings.filterwarnings('ignore')
